@@ -1,6 +1,3 @@
-차 량등록(중복검사), 삭제(중복검사)
-
-
 import csv
 import time
 
