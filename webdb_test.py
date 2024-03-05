@@ -1,10 +1,30 @@
+from flask import Flask, jsonify, render_template, request, redirect, send_file, url_for, Response
+from werkzeug.utils import secure_filename, send_from_directory
+import os
+import subprocess
+import sys
 import csv
 import time
+sys.path.append('./utils')
+app = Flask(__name__)
+app.id_count = 1
+app.users = {}
 
-'''
-주차요금 1분에 1000원
+@app.route('/carwork', methods=['GET','POST'])
+def detect():
+ #yolov5를 커스텀한 코드
+    if __name__ == "__main__":
+        app.run() #app.run(port='5001') 5001번포트로의 접속을 허용한다는 뜻, 설정을 해주지 않으면 default 포트번호 5000번
 
-'''
+    return "testrun"
+
+@app.route('/carin', methods=['GET','POST'])
+def come():
+    new_user            = request.json
+    new_user["id"]         = app.id_count
+    app.users[app.id_count] = new_user
+    app.id_count         = app.id_count + 1
+    return jsonify(new_user)
 
 
 def check_duplicate_and_save(target, timestamp_str):
@@ -26,50 +46,26 @@ def check_duplicate_and_save(target, timestamp_str):
         with open('example.csv', 'a', newline='', encoding='utf-8') as file:
             writer = csv.writer(file)
             writer.writerow([target, timestamp_str])
+
         print("데이터가 파일에 저장되었습니다.")
+        return file
     else:
         print("중복된 데이터가 있습니다. 저장하지 않습니다.")
 
 def entry(car_num):
     timestamp_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(int(time.time())))
     print("Timestamp:", timestamp_str)
-
     target_vehicle = car_num
-    
     check_duplicate_and_save(target_vehicle, timestamp_str)
+    car_print = car_num + ", " + timestamp_str
+    return car_print
 
+@app.route('/carread', methods=['GET','POST'])
+def car_read():
+    car_data = entry("aaa5677")
+    return jsonify(car_data)
 
-def exit(target):
-    # 임시 리스트 초기화
-    rows_to_keep = []
-    found_and_deleted = False
-    
-    # 원본 파일 읽기
-    try:
-        with open('example.csv', 'r', newline='', encoding='utf-8') as file:
-            reader = csv.reader(file)
-            for row in reader:
-                if row[0] == target:
-                    # 일치하는 데이터를 찾았으므로 삭제하고 continue
-                    found_and_deleted = True
-                    continue
-                rows_to_keep.append(row)
-    except FileNotFoundError:
-        print("파일이 존재하지 않습니다.")
-        return
-
-    # 변경 사항이 있는 경우, 파일을 업데이트
-    if found_and_deleted:
-        with open('example.csv', 'w', newline='', encoding='utf-8') as file:
-            writer = csv.writer(file)
-            writer.writerows(rows_to_keep)
-        print(f"'{target}'에 해당하는 데이터가 삭제되었습니다.")
-    else:
-        print(f"'{target}'에 해당하는 데이터가 파일에 없습니다.")
-
-
-# 추가
-entry("23가5478")
-
-# 제거
-#exit("23가5478")
+@app.route('/cardata', methods=['GET','POST'])
+def car_datas():
+    car_data = entry("aaa5677")
+    return car_data
