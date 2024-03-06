@@ -1,12 +1,6 @@
 import csv
 import time
 
-'''
-주차요금 1분에 1000원
-
-'''
-
-
 def check_duplicate_and_save(target, timestamp_str):
     # 파일이 존재하는지 확인하고, 존재하면 읽어서 중복 검사
     duplicate_found = False
