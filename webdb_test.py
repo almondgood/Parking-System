@@ -1,22 +1,30 @@
 from flask import Flask, jsonify, render_template, request, redirect, send_file, url_for, Response
+from flask_restx import Api, Resource  # Api 구현을 위한 Api 객체 import
 from werkzeug.utils import secure_filename, send_from_directory
-import os
-import subprocess
 import sys
 import csv
 import time
+import serial
+
+
+
 sys.path.append('./utils')
 app = Flask(__name__)
+api = Api(app)  # Flask 객체에 Api 객체 등록
+
 app.id_count = 1
 app.users = {}
 
-@app.route('/carwork', methods=['GET','POST'])
-def detect():
- #yolov5를 커스텀한 코드
-    if __name__ == "__main__":
-        app.run() #app.run(port='5001') 5001번포트로의 접속을 허용한다는 뜻, 설정을 해주지 않으면 default 포트번호 5000번
 
-    return "testrun"
+# 아두이노와의 시리얼 통신 설정 (포트 및 전송 속도)
+arduino_port = '/dev/ttyACM0'  # 아두이노 포트에 맞게 변경
+baud_rate = 9600
+
+# 아두이노와 시리얼 통신 시작
+ser = serial.Serial(arduino_port, baud_rate)
+time.sleep(2)  # 아두이노가 시리얼 통신을 시작할 시간을 기다립니다.
+
+
 
 @app.route('/carin', methods=['GET','POST'])
 def come():
@@ -69,3 +77,19 @@ def car_read():
 def car_datas():
     car_data = entry("aaa5677")
     return car_data
+
+
+@api.route('/license-plate/<string:text>', methods=['GET','POST'])
+class ardu(Resource):
+    def get(self, text):
+        ser.write(text.encode())
+        entry(text)
+        
+        return text
+    
+
+    
+    
+    
+if __name__ == "__main__":
+    app.run(host="0.0.0.0") #app.run(port='5001') 5001번포트로의 접속을 허용한다는 뜻, 설정을 해주지 않으면 default 포트번호 5000번
